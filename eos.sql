@@ -40,7 +40,7 @@ DROP TABLE IF EXISTS `accounts_keys`;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `accounts_keys` (
   `account` varchar(12) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `public_key` varchar(53) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `public_key` varchar(64) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `permission` varchar(12) COLLATE utf8mb4_general_ci DEFAULT NULL,
   KEY `account` (`account`),
   CONSTRAINT `accounts_keys_ibfk_1` FOREIGN KEY (`account`) REFERENCES `accounts` (`name`)
@@ -63,10 +63,18 @@ CREATE TABLE `actions` (
   `name` varchar(12) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `data` json DEFAULT NULL,
+  `eosto` varchar(12) GENERATED ALWAYS AS (`data` ->> '$.to'),
+  `eosfrom` varchar(12) GENERATED ALWAYS AS (`data` ->> '$.from'),
+  `receiver` varchar(12) GENERATED ALWAYS AS (`data` ->> '$.receiver'),
+  `payer` varchar(12) GENERATED ALWAYS AS (`data` ->> '$.payer'),
   PRIMARY KEY (`id`),
   KEY `idx_actions_account` (`account`),
   KEY `idx_actions_tx_id` (`transaction_id`),
   KEY `idx_actions_created` (`created_at`),
+  KEY `idx_actions_eosto` (`eosto`),
+  KEY `idx_actions_eosfrom` (`eosfrom`),
+  KEY `idx_actions_receiver` (`receiver`),
+  KEY `idx_actions_payer` (`payer`),
   CONSTRAINT `actions_ibfk_1` FOREIGN KEY (`transaction_id`) REFERENCES `transactions` (`id`) ON DELETE CASCADE,
   CONSTRAINT `actions_ibfk_2` FOREIGN KEY (`account`) REFERENCES `accounts` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=363 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -144,7 +152,7 @@ DROP TABLE IF EXISTS `tokens`;
 CREATE TABLE `tokens` (
   `account` varchar(13) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `symbol` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `amount` double(14,4) DEFAULT NULL,
+  `amount` double(64,4) DEFAULT NULL,
   KEY `idx_tokens_account` (`account`),
   CONSTRAINT `tokens_ibfk_1` FOREIGN KEY (`account`) REFERENCES `accounts` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
