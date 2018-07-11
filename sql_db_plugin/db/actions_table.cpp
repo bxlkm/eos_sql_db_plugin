@@ -32,12 +32,20 @@ void actions_table::create()
             "parent INT DEFAULT NULL,"
             "name VARCHAR(12),"
             "created_at DATETIME DEFAULT NOW(),"
+            "`eosto` varchar(12) GENERATED ALWAYS AS (`data` ->> '$.to'),"
+            "`eosfrom` varchar(12) GENERATED ALWAYS AS (`data` ->> '$.from'),"
+            "`receiver` varchar(12) GENERATED ALWAYS AS (`data` ->> '$.receiver'),"
+            "`payer` varchar(12) GENERATED ALWAYS AS (`data` ->> '$.payer'),"
             "data JSON, FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,"
             "FOREIGN KEY (account) REFERENCES accounts(name)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;";
 
     *m_session << "CREATE INDEX idx_actions_account ON actions (account);";
     *m_session << "CREATE INDEX idx_actions_tx_id ON actions (transaction_id);";
     *m_session << "CREATE INDEX idx_actions_created ON actions (created_at);";
+    *m_session << "CREATE INDEX `idx_actions_eosto` ON `actions`(`eosto`);";
+    *m_session << "CREATE INDEX `idx_actions_eosfrom` ON `actions`(`eosfrom`);";
+    *m_session << "CREATE INDEX `idx_actions_receiver` ON `actions`(`receiver`);";
+    *m_session << "CREATE INDEX `idx_actions_payer` ON `actions`(`payer`);";
 
     *m_session << "CREATE TABLE actions_accounts("
             "actor VARCHAR(12),"
@@ -51,7 +59,7 @@ void actions_table::create()
     *m_session << "CREATE TABLE tokens("
             "account VARCHAR(13),"
             "symbol VARCHAR(10),"
-            "amount REAL(14,4),"
+            "amount double(64,4) DEFAULT NULL,"
             "FOREIGN KEY (account) REFERENCES accounts(name)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;"; // TODO: other tokens could have diff format.
 
     *m_session << "CREATE INDEX idx_tokens_account ON tokens (account);";

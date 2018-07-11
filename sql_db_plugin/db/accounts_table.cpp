@@ -31,7 +31,7 @@ void accounts_table::create()
 
     *m_session << "CREATE TABLE accounts_keys("
             "account VARCHAR(12),"
-            "public_key VARCHAR(53),"
+            "public_key varchar(64) DEFAULT NULL,"
             "permission VARCHAR(12), FOREIGN KEY (account) REFERENCES accounts(name)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;";
 }
 
